@@ -1,0 +1,39 @@
+<apex:component >
+	<apex:attribute name="jsondata" description="This is the chart data"
+		type="string" required="true" />
+
+	<apex:attribute name="title" description="This is the chart title"
+		type="string" required="true" />
+
+	<apex:attribute name="height" description="This is the chart height"
+		type="integer" default="250" />
+	<apex:attribute name="width" description="This is the chart width"
+		type="integer" default="500" />
+	
+	<apex:outputPanel id="chart_div">
+		<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+		<script type="text/javascript">
+ google.load("visualization", "1", {packages: ["linechart" ]});
+ google.setOnLoadCallback(drawLineChart); 
+ 
+ function drawLineChart() {
+  var data = new google.visualization.DataTable( eval( '({!jsondata})' ) );
+  
+  var chart = new google.visualization.LineChart( 
+  		document.getElementById('{!$Component.chart_div}'));
+  chart.draw(data, {width: {!width}, height: {!height}, 
+  		legend: 'bottom',  // should be passed in via attribute
+        smoothLine: true,  // should be passed in via attribute
+        title: '{!title}'});
+   
+   /*
+   google.visualization.events.addListener(table, 'select', function() {
+    var row = chart.getSelection()[0].row;
+   	// alert('You selected ' + data.getValue(row, 0));
+    window.location.href = '/'+data.getValue(row, 0);
+   });*/
+ 
+ }
+</script>
+	</apex:outputPanel>
+</apex:component>
