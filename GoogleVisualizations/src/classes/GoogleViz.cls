@@ -1,3 +1,34 @@
+/*
+    Copyright (c) 2008 salesforce.com, inc.
+    All rights reserved.
+    
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+    
+    1. Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+    2. Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in the
+       documentation and/or other materials provided with the distribution.
+    3. The name of the author may not be used to endorse or promote products
+       derived from this software without specific prior written permission.
+    
+    THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR
+    IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+    IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, 
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+    NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+    DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+    THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    
+    Utility class for collecting a google auth sub session token for use with all 
+    Google Data API's
+
+*/
 public class GoogleViz {
 
 /*
@@ -49,6 +80,7 @@ it with backticks when you refer to it.
 label: String. Optional. This is the label of the column, and some visualizations 
 (like table, and some charts) actually display it to the users.
 */ 
+
  public class col { 
     public col() {}
     public col(string idd ) {id = idd;}
@@ -190,12 +222,44 @@ rows: [[{v: 'a'}, {v: 1.0, f: '1'}, {v: new Date(2008, 1, 28, 0, 31, 26), f: '2/
         ret += r.toJsonString() + ','; 
     }
     ret = ret.substring( 0, ret.length() - 1 ) + ']}';
+ 	ret = ret.replaceAll('\'','');
+ 	ret = ret.replaceAll('\\p{Cntrl}','');
     return ret; 
  }
  
+ public static  testmethod void escapeTest() { 
+	row r = new row();
+ 	cell cc = new cell('bad\'data with \n\t control char\'s'); 	
+	GoogleViz v = new GoogleViz(); 
+	v.cols = new list<col> { new GoogleViz.Col('B','b','t') };
+	v.addRow(new row( new list<cell> {cc} ));
+ 	system.debug(v.toJSONString());
+ 	system.assertEquals('{cols: [{id: "B", label: "b", type: "t"}], rows: [[{v: "baddata with  control chars"}]]}',
+ 	 v.toJsonString(), 'toss control and single quotes');
+ }
 
+ public static  testmethod void rowTest() { 
+ 	row r = new row();
+ 	cell cc = new cell(); 
+ 	cell boo = new Cell(false);
+ 	cell i = new Cell(1.0);
+ 	cell d = new Cell( System.today());
+ 	cell dt = new Cell ( system.now() );
  
-/* public static  testmethod void test_col() { 
+ 	system.assert( dt.toJsonString()  != null );
+ 	GoogleViz v = new GoogleViz(); 
+ 	v.cols = new list<col> { 
+ 		new GoogleViz.Col('A','New at\'s \nA','t'),
+		new GoogleViz.Col('B','B label','n') };
+ 	
+ 	r = new row( new list<cell> {boo,i} );
+ 	
+ 	v.addRow(r);
+ 	system.debug(v.toJSONString());
+ 
+ }
+ 
+ public static  testmethod void test_col() { 
     
     GoogleViz.Col cl = new GoogleViz.Col('A'); 
     cl = new GoogleViz.Col('A','New A'); 
@@ -221,18 +285,12 @@ rows: [[{v: 'a'}, {v: 1.0, f: '1'}, {v: new Date(2008, 1, 28, 0, 31, 26), f: '2/
     gv.rowCollection.add( rr );
     system.debug (gv.toJSONString() ); 
     
-    string assert = '{cols: [{id: "A", label: "New A", type: "t"},{id: "B", label: "B label", type: "n"}],\nrows: [[{v: "a"},{f: "3ish",v: 3},{v: new Date(2008, 3, 30, 0, 0, 0), f: "4/30/08 12:31 AM"}]]}';
-    system.assert( assert == gv.toJSONString() );
+	string assert = '{cols: [{id: "A", label: "New A", type: "t"},{id: "B", label: "B label", type: "n"}], rows: [[{v: "a"},{f: "3ish",v: 3},{v: new Date(2008, 3, 30, 0, 0, 0), f: "4/30/08 12:31 AM"}]]}';
+	system.assertEquals( assert , gv.toJSONString() );
     
  }
 
- public static  testmethod void rowTest() { 
-    row r = new row();
-    cell cc = new cell(); 
-    Opportunity[] al = [ select id,amount,closedate from opportunity limit 1];  
-    r = new row( new list<cell> {cc} );
     
- }
  
  public static  testmethod void test_unparsing2() { 
     JSONObject.value va = new JSONObject.value('str'); 
@@ -242,6 +300,8 @@ rows: [[{v: 'a'}, {v: 1.0, f: '1'}, {v: new Date(2008, 1, 28, 0, 31, 26), f: '2/
         dateToJavaScript(Date.newInstance(2008,3,30)) == 'new Date(2008, 3, 30, 0, 0, 0)', 
         ' dateToJavaScript  failed' );
  
+ 	system.assert( GoogleViz.dateToJavaScript( System.now()) != null);
+ 	
     GoogleViz v = new GoogleViz(); 
     GoogleViz.Col cl = new GoogleViz.Col(); 
     cl.id = 'A';  
@@ -258,8 +318,8 @@ rows: [[{v: 'a'}, {v: 1.0, f: '1'}, {v: new Date(2008, 1, 28, 0, 31, 26), f: '2/
  
  public static  testmethod void test_junparsing() { 
     try_json( '{id:"A"}');
-    try_json( '{label:"NEW A",id:"A"}');
-    try_json( '{type:"t",label:"NEW A",id:"A"}');
+ 	try_json( '{label:"NEW A"}');
+ 	try_json( '{type:"t"}'); 
     try_json( '{type:12}');
     try_json( '{type:true}');
     try_json( '{type:false}');
@@ -274,6 +334,8 @@ rows: [[{v: 'a'}, {v: 1.0, f: '1'}, {v: new Date(2008, 1, 28, 0, 31, 26), f: '2/
     system.debug(s +'>>'+ jstring);
     // remove white space for the comparison
     system.assert( s == jstring, 'mis match in parsing');
- } */
+ 
+ 	
+ } 
  
 }
