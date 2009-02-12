@@ -156,6 +156,10 @@ f: Formatted value. String. Optional. The formatted value of this cell. Used by 
         obj.putOpt( 'v', new JSONObject.value( i ) );
         obj.putOpt( 'f', new JSONObject.value( s ) );   
     }
+ 	public cell( string val, string formattedVal) {  
+       obj.putOpt( 'v', new JSONObject.value( val ) );
+       obj.putOpt( 'f', new JSONObject.value(formattedVal ) );   
+    }
     public cell( date d, string s) {  // number value and formated value
         // {v: new Date(2008, 3, 30, 0, 31, 26), f: '4/30/08 12:31 AM'}
         dt = d;
@@ -236,6 +240,9 @@ rows: [[{v: 'a'}, {v: 1.0, f: '1'}, {v: new Date(2008, 1, 28, 0, 31, 26), f: '2/
  	system.debug(v.toJSONString());
  	system.assertEquals('{cols: [{id: "B", label: "b", type: "t"}], rows: [[{v: "baddata with  control chars"}]]}',
  	 v.toJsonString(), 'toss control and single quotes');
+ 	 
+ 	cell sc = new cell('string', 'formated string<b>bold</b>'); 	
+	 
  }
 
  public static  testmethod void rowTest() { 
