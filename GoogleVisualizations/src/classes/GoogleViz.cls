@@ -205,13 +205,13 @@ rows: [[{v: 'a'}, {v: 1.0, f: '1'}, {v: new Date(2008, 1, 28, 0, 31, 26), f: '2/
  
  // helper to return a Google JSON string from a date
  public static string dateToJavaScript(date dd) { 
-    string ret = 'new Date(' + dd.year() + ', ' + dd.month() + ', ' + dd.day() + ', 0, 0, 0)';  
+ 	string ret = 'new Date(' + dd.year() + ', ' + (dd.month()-1) + ', ' + dd.day() + ', 0, 0, 0)';	
     system.debug( ret ); 
     return ret;
  } 
  public static string dateToJavaScript(datetime dtm) { 
     string ret = 'new Date(' + 
-    dtm.year() + ', ' + dtm.month() + ', ' + dtm.day() + 
+ 	dtm.year() + ', ' + (dtm.month()-1) + ', ' + dtm.day() + 
     ', '+dtm.hour() +', '+ dtm.minute() +', ' + dtm.second() + ')'; 
     system.debug( ret ); 
     return ret;
@@ -292,7 +292,7 @@ rows: [[{v: 'a'}, {v: 1.0, f: '1'}, {v: new Date(2008, 1, 28, 0, 31, 26), f: '2/
     gv.rowCollection.add( rr );
     system.debug (gv.toJSONString() ); 
     
-	string assert = '{cols: [{id: "A", label: "New A", type: "t"},{id: "B", label: "B label", type: "n"}], rows: [[{v: "a"},{f: "3ish",v: 3},{v: new Date(2008, 3, 30, 0, 0, 0), f: "4/30/08 12:31 AM"}]]}';
+	string assert = '{cols: [{id: "A", label: "New A", type: "t"},{id: "B", label: "B label", type: "n"}], rows: [[{v: "a"},{f: "3ish",v: 3},{v: new Date(2008, 2, 30, 0, 0, 0), f: "4/30/08 12:31 AM"}]]}';
 	system.assertEquals( assert , gv.toJSONString() );
     
  }
@@ -304,7 +304,7 @@ rows: [[{v: 'a'}, {v: 1.0, f: '1'}, {v: new Date(2008, 1, 28, 0, 31, 26), f: '2/
     system.assert( va.valueToString()  == '"str"' );
     
     system.assert( 
-        dateToJavaScript(Date.newInstance(2008,3,30)) == 'new Date(2008, 3, 30, 0, 0, 0)', 
+		dateToJavaScript(Date.newInstance(2008,1,30)) == 'new Date(2008, 0, 30, 0, 0, 0)', 
         ' dateToJavaScript  failed' );
  
  	system.assert( GoogleViz.dateToJavaScript( System.now()) != null);
