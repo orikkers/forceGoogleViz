@@ -22,13 +22,13 @@
 			
 			  	var chart = new google.visualization.MotionChart(document.getElementById('{!$Component.chart_div}'));
 			  	chart.draw(data, {width: {!width}, height: {!height}, 
-			  		showSelectListComponent: '{!showSelectListComponent}',  
-			        showSidePanel: '{!showSidePanel}', 
-			        showXMetricPicker : '{!showXMetricPicker}',
-				    showYMetricPicker : '{!showYMetricPicker}',
-			        showXScalePicker : '{!showXScalePicker}',
-			        showYScalePicker : '{!showYScalePicker}',
-			        showAdvancedPanel : '{!showAdvancedPanel}'
+			  		showSelectListComponent: {!showSelectListComponent},  
+			        showSidePanel: {!showSidePanel}, 
+			        showXMetricPicker : {!showXMetricPicker},
+				    showYMetricPicker : {!showYMetricPicker},
+			        showXScalePicker : {!showXScalePicker},
+			        showYScalePicker : {!showYScalePicker},
+			        showAdvancedPanel : {!showAdvancedPanel}
 			        });
 			 }
 		</script>
