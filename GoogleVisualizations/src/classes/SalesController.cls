@@ -37,7 +37,7 @@ public class SalesController {
                 
         gv.cols = new list<GoogleViz.col> { 
 			new GoogleViz.Col('col1','Date','date'),
-		    new GoogleViz.Col('col2','Cosmo G. Spacely','number'),
+		    new GoogleViz.Col('col2', UserInfo.getFirstName() + ' ' + UserInfo.getLastName(),'number'),
 		    new GoogleViz.Col('col3','Account Name','string'),
 		    new GoogleViz.Col('col4','Opportunity Amount','string')
         };
@@ -46,7 +46,7 @@ public class SalesController {
         
         for( Opportunity o : [SELECT Id, Name, Amount, CloseDate, Account.Name, Owner.Name
                               FROM Opportunity
-                              WHERE IsWon = true
+                              WHERE IsWon = true AND OwnerId = :UserInfo.getUserId()
                               ORDER BY CloseDate ASC]){
 
 			GoogleViz.row r = new GoogleViz.row();
@@ -133,6 +133,28 @@ public class SalesController {
 			GoogleViz.row r = new GoogleViz.row();
             r.cells.add ( new GoogleViz.cell( billingCountry ) );
             r.cells.add ( new GoogleViz.cell( numOpportunities ) );
+                
+            gv.addRow( r );
+        }
+
+        return gv.toJsonString();
+	}  
+	
+	public String getOpportunitiesAmountProbability(){
+    	
+    	GoogleViz gv = new GoogleViz();
+        gv.cols = new list<GoogleViz.col> { 
+			new GoogleViz.Col('col1','Probability','number'),
+		    new GoogleViz.Col('col2','Amount','number')
+        };
+        
+        for(Opportunity o : [SELECT Probability, Amount
+                             FROM Opportunity
+                             WHERE IsClosed=false]){
+			                         				
+			GoogleViz.row r = new GoogleViz.row();
+            r.cells.add ( new GoogleViz.cell( o.Probability ) );
+            r.cells.add ( new GoogleViz.cell( o.Amount ) );
                 
             gv.addRow( r );
         }
