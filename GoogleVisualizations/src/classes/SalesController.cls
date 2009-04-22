@@ -36,10 +36,10 @@ public class SalesController {
     	GoogleViz gv = new GoogleViz();
                 
         gv.cols = new list<GoogleViz.col> { 
-			new GoogleViz.Col('col1','Date','d'),
-		    new GoogleViz.Col('col2','Cosmo G. Spacely','n'),
-		    new GoogleViz.Col('col3','Account Name','t'),
-		    new GoogleViz.Col('col4','Opportunity Amount','t')
+			new GoogleViz.Col('col1','Date','date'),
+		    new GoogleViz.Col('col2','Cosmo G. Spacely','number'),
+		    new GoogleViz.Col('col3','Account Name','string'),
+		    new GoogleViz.Col('col4','Opportunity Amount','string')
         };
                 
         Integer numOpportunities = 1;
@@ -61,6 +61,44 @@ public class SalesController {
 
         return gv.toJsonString();
 	}  
+	
+	public String getSalesByYear(){
+		
+    	GoogleViz gv = new GoogleViz();
+                
+        gv.cols = new list<GoogleViz.col> { 
+			new GoogleViz.Col('col1','Year','string'),
+		    new GoogleViz.Col('col2','Amount','number')
+        };
+        
+         Map<String, Integer> mapAmountsByYear = new Map<String, Integer>();
+        
+        for( Opportunity o : [SELECT Amount, FiscalYear
+                              FROM Opportunity
+                              WHERE IsWon = true
+                              ORDER BY FiscalYear ASC]){
+            
+            String fiscalYear = String.valueOf(o.FiscalYear);
+                              	
+	        if(!mapAmountsByYear.containsKey(fiscalYear)){
+				mapAmountsByYear.put(fiscalYear, o.Amount.intValue());	
+			}else{
+				Integer currentTotalAmount = mapAmountsByYear.get(fiscalYear);	
+				currentTotalAmount += o.Amount.intValue();
+				mapAmountsByYear.put(fiscalYear, currentTotalAmount);
+	        }
+        }
+        
+        for(String year : mapAmountsByYear.keySet()){
+			GoogleViz.row r = new GoogleViz.row();
+        	r.cells.add ( new GoogleViz.cell( year ) );
+        	r.cells.add ( new GoogleViz.cell( mapAmountsByYear.get(year) ) );
+        	                
+        	gv.addRow( r );
+        }
+        
+        return gv.toJsonString();
+	} 
 	
 	public String getOpportunitiesByBillingCountry(){
     	
