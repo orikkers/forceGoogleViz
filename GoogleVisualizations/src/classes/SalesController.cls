@@ -104,8 +104,8 @@ public class SalesController {
     	
     	GoogleViz gv = new GoogleViz();
         gv.cols = new list<GoogleViz.col> { 
-			new GoogleViz.Col('col1','Billing Country','t'),
-		    new GoogleViz.Col('col2','Number of Opportunities','n')
+			new GoogleViz.Col('col1','Billing Country','string'),
+		    new GoogleViz.Col('col2','Number of Opportunities','number')
         };
                 
         Map<String, Integer> mapOpportunityCounts = new Map<String, Integer>();
