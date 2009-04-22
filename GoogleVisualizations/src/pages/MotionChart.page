@@ -1,4 +1,4 @@
-<apex:page standardcontroller="Opportunity" extensions="MotionChartController" >
+<apex:page standardcontroller="Opportunity" extensions="MotionChartController" showHeader="false">
 <!-- This page could be embedded in to an Oppotunity detail page to show the progression of an Opportunity. -->
 	<c:MotionChart jsondata="{!SalesHistory}" width="600" height="400" 
 				   showSelectListComponent="true"

@@ -1,4 +1,4 @@
-<apex:page controller="SalesController">
+<apex:page controller="SalesController" showHeader="false">
 <html>
 <body>
 
