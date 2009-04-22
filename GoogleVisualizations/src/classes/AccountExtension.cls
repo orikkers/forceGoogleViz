@@ -43,8 +43,8 @@ public class AccountExtension {
         				 				   
     	GoogleViz gv = new GoogleViz();
         gv.cols = new list<GoogleViz.col> { 
-			new GoogleViz.Col('col1','Opportunity Name','t'),
-		    new GoogleViz.Col('col2','Amount','n')
+			new GoogleViz.Col('col1','Opportunity Name','string'),
+		    new GoogleViz.Col('col2','Amount','number')
         };
          
         for(Opportunity o : opportunities){
