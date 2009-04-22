@@ -88,7 +88,7 @@ label: String. Optional. This is the label of the column, and some visualization
     public col(string idd, string l, string ct ) {id = idd; label = l; ctype =  ct;}
     public string ctype,id,label; 
     public string toJsonString() { 
-        return '{id: "'+id+'", label: "'+label+'", type: "'+ctype + '"}';
+        return '{id:"' + id + '", label:"' + label + '", type:"' + ctype + '"}';
     }
  }
 
@@ -107,11 +107,11 @@ cells are nulls, you can specify: [ , , {v: '3rd cell value'}]
     public row(list<cell> c) { cells = c; } 
     public string toJsonString() { 
         system.assert( cells.size() > 0, ' no cells found in row');
-        string ret = '['; 
+        string ret = '{c:['; 
         for( cell cc: cells) { 
             ret += cc.toJsonString() + ','; 
         }   
-        ret = ret.substring( 0, ret.length() - 1 ) + ']';
+        ret = ret.substring( 0, ret.length() - 1 ) + ']}';
         return ret; 
     }
  } 
