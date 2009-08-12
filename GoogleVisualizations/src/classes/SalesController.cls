@@ -32,6 +32,10 @@
 public class SalesController {
 	
 	public String getSalesActivity(){
+		return getSalesActivity(null);
+	}
+	
+	public String getSalesActivity(List<Id> ids){
 		
     	GoogleViz gv = new GoogleViz();
                 
@@ -43,12 +47,17 @@ public class SalesController {
         };
                 
         Integer numOpportunities = 1;
-        
-        for( Opportunity o : [SELECT Id, Name, Amount, CloseDate, Account.Name, Owner.Name
-                              FROM Opportunity
-                              WHERE IsWon = true AND OwnerId = :UserInfo.getUserId()
-                              ORDER BY CloseDate ASC]){
-
+        Id userId = UserInfo.getUserId();
+        string query = 'SELECT Id, Name, Amount, CloseDate, Account.Name, Owner.Name FROM Opportunity WHERE IsWon = true AND OwnerId = :userId';
+		
+		// The unit testing path.
+		if(ids != null && ids.size() > 0){
+		 	query += ' AND Id IN :ids';
+	 	}
+	 	
+	 	query += ' ORDER BY CloseDate ASC';
+	 	
+    	for(Opportunity o : Database.query(query)){  
 			GoogleViz.row r = new GoogleViz.row();
             r.cells.add ( new GoogleViz.cell( o.CloseDate ) );
             r.cells.add ( new GoogleViz.cell( numOpportunities ) );
@@ -63,6 +72,10 @@ public class SalesController {
 	}  
 	
 	public String getSalesByYear(){
+		return getSalesByYear(null);	
+	}
+	
+	private String getSalesByYear(List<Id> ids){
 		
     	GoogleViz gv = new GoogleViz();
                 
@@ -71,13 +84,18 @@ public class SalesController {
 		    new GoogleViz.Col('col2','Amount','number')
         };
         
-         Map<String, Integer> mapAmountsByYear = new Map<String, Integer>();
+        Map<String, Integer> mapAmountsByYear = new Map<String, Integer>();
         
-        for( Opportunity o : [SELECT Amount, FiscalYear
-                              FROM Opportunity
-                              WHERE IsWon = true
-                              ORDER BY FiscalYear ASC]){
-            
+        string query = 'SELECT Amount, FiscalYear FROM Opportunity WHERE IsWon = true';
+		
+		// The unit testing path.
+		if(ids != null && ids.size() > 0){
+		 	query += ' AND Id IN :ids';
+	 	}
+	 	
+	 	query += ' ORDER BY FiscalYear ASC';
+
+ 		for(Opportunity o : Database.query(query)){         
             String fiscalYear = String.valueOf(o.FiscalYear);
                               	
 	        if(!mapAmountsByYear.containsKey(fiscalYear)){
@@ -101,6 +119,10 @@ public class SalesController {
 	} 
 	
 	public String getOpportunitiesByBillingCountry(){
+		return getOpportunitiesByBillingCountry(null);
+	}  
+	
+	private String getOpportunitiesByBillingCountry(List<Id> ids){
     	
     	GoogleViz gv = new GoogleViz();
         gv.cols = new list<GoogleViz.col> { 
@@ -109,13 +131,15 @@ public class SalesController {
         };
                 
         Map<String, Integer> mapOpportunityCounts = new Map<String, Integer>();
-        //Integer i = 0;
-        
-        for(Opportunity o : [SELECT Id, Account.BillingCountry
-                             FROM Opportunity]){
-                             
-			//System.debug('######' + i++ +': ' + o);    
-			                         	
+
+		string query = 'SELECT Id, Account.BillingCountry FROM Opportunity';
+		
+		// The unit testing path.
+		if(ids != null && ids.size() > 0){
+		 	query += ' WHERE Id IN :ids';
+	 	}
+
+ 		for(Opportunity o : Database.query(query)){
 			if(!mapOpportunityCounts.containsKey(o.Account.BillingCountry)){
 				mapOpportunityCounts.put(o.Account.BillingCountry, 0);	
 			}
@@ -141,24 +165,81 @@ public class SalesController {
 	}  
 	
 	public String getOpportunitiesAmountProbability(){
-    	
+        return getOpportunitiesAmountProbability(null);
+	}  
+	
+	private String getOpportunitiesAmountProbability(List<Id> ids){
     	GoogleViz gv = new GoogleViz();
         gv.cols = new list<GoogleViz.col> { 
 			new GoogleViz.Col('col1','Probability','number'),
 		    new GoogleViz.Col('col2','Amount','number')
         };
         
-        for(Opportunity o : [SELECT Probability, Amount
-                             FROM Opportunity
-                             WHERE IsClosed=false]){
-			                         				
-			GoogleViz.row r = new GoogleViz.row();
-            r.cells.add ( new GoogleViz.cell( o.Probability ) );
-            r.cells.add ( new GoogleViz.cell( o.Amount ) );
-                
-            gv.addRow( r );
-        }
+        string query = 'SELECT Probability, Amount FROM Opportunity';
+		
+		// The unit testing path.
+		if(ids != null && ids.size() > 0){
+		 	query += ' WHERE Id IN :ids ORDER BY CloseDate ASC';
+	 	}
 
+ 		for(Opportunity o : Database.query(query)){
+			GoogleViz.row r = new GoogleViz.row();
+			r.cells.add ( new GoogleViz.cell( o.Probability ) );
+			r.cells.add ( new GoogleViz.cell( o.Amount ) );	                
+	        gv.addRow( r );
+	    }
+        
         return gv.toJsonString();
 	}  
+	private testMethod static void testSalesActivity(){
+        String expected = '{cols: [{id: "col1", label: "Date", type: "date"},{id: "col2", label: "Cosmo G. Spacely", type: "number"},{id: "col3", label: "Account Name", type: "string"},{id: "col4", label: "Opportunity Amount", type: "string"}], rows: [{c:[{v: new Date(2009, 0, 1, 0, 0, 0), f: "1/1/2009"},{v: 1.0},{v: "a1"},{v: 1000.0}]},{c:[{v: new Date(2009, 1, 2, 0, 0, 0), f: "2/2/2009"},{v: 2.0},{v: "a1"},{v: 2000.0}]}]}';
+        
+        SalesController salesCon = new SalesController();
+        Account a = new Account(name='a1');
+        insert a;
+        Opportunity o1 = new Opportunity(Name='o1', StageName='Closed Won', CloseDate=date.newinstance(2009, 1, 1), Amount=1000, AccountId=a.Id); 
+        Opportunity o2 = new Opportunity(Name='o2', StageName='Closed Won', CloseDate=date.newinstance(2009, 2, 2), Amount=2000, AccountId=a.Id); 
+        insert new List<Opportunity> {o1, o2};
+        String actual = salesCon.getSalesActivity(new List<Id> {o1.Id, o2.Id});
+        
+        System.assertEquals(expected, actual);
+    }
+    
+	private testMethod static void testSalesByYear(){
+        String expected = '{cols: [{id: "col1", label: "Year", type: "string"},{id: "col2", label: "Amount", type: "number"}], rows: [{c:[{v: "2009"},{v: 3000.0}]}]}';
+        
+        SalesController salesCon = new SalesController();
+        Opportunity o1 = new Opportunity(Name='o1', StageName='Closed Won', CloseDate=date.newinstance(2009, 1, 1), Amount=1000); 
+        Opportunity o2 = new Opportunity(Name='o2', StageName='Closed Won', CloseDate=date.newinstance(2009, 1, 1), Amount=2000); 
+        insert new List<Opportunity> {o1, o2};
+        String actual = salesCon.getSalesByYear(new List<Id> {o1.Id, o2.Id});
+        
+        System.assertEquals(expected, actual);
+    }
+	
+	private testMethod static void testOpportunitiesByBillingCountry(){
+        String expected = '{cols: [{id: "col1", label: "Billing Country", type: "string"},{id: "col2", label: "Number of Opportunities", type: "number"}], rows: [{c:[{v: "MyCountry"},{v: 2.0}]}]}';
+        
+        SalesController salesCon = new SalesController();
+        Account a = new Account(name='a1', BillingCountry='MyCountry');
+        insert a;
+        Opportunity o1 = new Opportunity(Name='o1', StageName='Closed Won', CloseDate=date.newinstance(2009, 1, 1), Amount=1000, AccountId=a.Id); 
+        Opportunity o2 = new Opportunity(Name='o2', StageName='Closed Lost', CloseDate=date.newinstance(2009, 2, 2), Amount=2000, AccountId=a.Id); 
+        insert new List<Opportunity> {o1, o2};
+        String actual = salesCon.getOpportunitiesByBillingCountry(new List<Id> {o1.Id, o2.Id});
+
+        System.assertEquals(expected, actual);
+    }
+	
+	private testMethod static void testGetOpportunityAmountProbability(){
+        String expected = '{cols: [{id: "col1", label: "Probability", type: "number"},{id: "col2", label: "Amount", type: "number"}], rows: [{c:[{v: 100.0},{v: 1000.0}]},{c:[{v: 0.0},{v: 2000.0}]}]}';
+        
+        SalesController salesCon = new SalesController();
+        Opportunity o1 = new Opportunity(Name='o1', StageName='Closed Won', CloseDate=date.newinstance(2009, 1, 1), Amount=1000); 
+        Opportunity o2 = new Opportunity(Name='o2', StageName='Closed Lost', CloseDate=date.newinstance(2009, 2, 2), Amount=2000); 
+        insert new List<Opportunity> {o1, o2};
+        String actual = salesCon.getOpportunitiesAmountProbability(new List<Id> {o1.Id, o2.Id});
+
+        System.assertEquals(expected, actual);
+    }
 }
