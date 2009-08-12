@@ -88,7 +88,7 @@ label: String. Optional. This is the label of the column, and some visualization
     public col(string idd, string l, string ct ) {id = idd; label = l; ctype =  ct;}
     public string ctype,id,label; 
     public string toJsonString() { 
-        return '{id:"' + id + '", label:"' + label + '", type:"' + ctype + '"}';
+        return '{id: "' + id + '", label: "' + label + '", type: "' + ctype + '"}';
     }
  }
 
@@ -206,14 +206,14 @@ rows: [[{v: 'a'}, {v: 1.0, f: '1'}, {v: new Date(2008, 1, 28, 0, 31, 26), f: '2/
  // helper to return a Google JSON string from a date
  public static string dateToJavaScript(date dd) { 
  	string ret = 'new Date(' + dd.year() + ', ' + (dd.month()-1) + ', ' + dd.day() + ', 0, 0, 0)';	
-    system.debug( ret ); 
+    //system.debug( ret ); 
     return ret;
  } 
  public static string dateToJavaScript(datetime dtm) { 
     string ret = 'new Date(' + 
  	dtm.year() + ', ' + (dtm.month()-1) + ', ' + dtm.day() + 
     ', '+dtm.hour() +', '+ dtm.minute() +', ' + dtm.second() + ')'; 
-    system.debug( ret ); 
+    //system.debug( ret ); 
     return ret;
  }  
  public string toJSONString() { 
@@ -234,15 +234,15 @@ rows: [[{v: 'a'}, {v: 1.0, f: '1'}, {v: new Date(2008, 1, 28, 0, 31, 26), f: '2/
  public static  testmethod void escapeTest() { 
 	row r = new row();
  	cell cc = new cell('bad\'data with \n\t control char\'s'); 	
-	GoogleViz v = new GoogleViz(); 
-	v.cols = new list<col> { new GoogleViz.Col('B','b','t') };
-	v.addRow(new row( new list<cell> {cc} ));
- 	system.debug(v.toJSONString());
- 	system.assertEquals('{cols: [{id: "B", label: "b", type: "t"}], rows: [[{v: "baddata with  control chars"}]]}',
- 	 v.toJsonString(), 'toss control and single quotes');
- 	 
- 	cell sc = new cell('string', 'formated string<b>bold</b>'); 	
-	 
+	GoogleViz gv = new GoogleViz(); 
+	gv.cols = new list<col> { new GoogleViz.Col('B','b','t') };
+	gv.addRow(new row( new list<cell> {cc} ));
+ 	string assert = '{cols: [{id: "B", label: "b", type: "t"}], rows: [{c:[{v: "baddata with  control chars"}]}]}';			
+	
+	//System.debug('EXPECTED = ' + assert);
+	//System.debug('ACTUAL   = ' + gv.toJSONString());
+ 	
+ 	system.assertEquals(assert, gv.toJsonString(), 'toss control and single quotes');
  }
 
  public static  testmethod void rowTest() { 
@@ -262,7 +262,7 @@ rows: [[{v: 'a'}, {v: 1.0, f: '1'}, {v: new Date(2008, 1, 28, 0, 31, 26), f: '2/
  	r = new row( new list<cell> {boo,i} );
  	
  	v.addRow(r);
- 	system.debug(v.toJSONString());
+ 	//system.debug(v.toJSONString());
  
  }
  
@@ -271,9 +271,9 @@ rows: [[{v: 'a'}, {v: 1.0, f: '1'}, {v: new Date(2008, 1, 28, 0, 31, 26), f: '2/
     GoogleViz.Col cl = new GoogleViz.Col('A'); 
     cl = new GoogleViz.Col('A','New A'); 
     cl.ctype = 't';
-    system.debug(cl.toJsonString());
+    //system.debug(cl.toJsonString());
     cl = new GoogleViz.Col('A','New A','t'); 
-    system.debug(cl.toJsonString());
+    //system.debug(cl.toJsonString());
     
     GoogleViz gv = new GoogleViz(); 
     gv.cols = new list<col> { new GoogleViz.Col('A','New A','t'),
@@ -289,10 +289,11 @@ rows: [[{v: 'a'}, {v: 1.0, f: '1'}, {v: new Date(2008, 1, 28, 0, 31, 26), f: '2/
     // {v: new Date(2008, 3, 30, 0, 31, 26), f: '4/30/08 12:31 AM'}
     rr.cells.add ( new GoogleViz.cell( Date.newInstance(2008,3,30), '4/30/08 12:31 AM' ) );
     
-    gv.rowCollection.add( rr );
-    system.debug (gv.toJSONString() ); 
+    gv.rowCollection.add( rr ); 
     
-	string assert = '{cols: [{id: "A", label: "New A", type: "t"},{id: "B", label: "B label", type: "n"}], rows: [[{v: "a"},{f: "3ish",v: 3},{v: new Date(2008, 2, 30, 0, 0, 0), f: "4/30/08 12:31 AM"}]]}';
+	string assert = '{cols: [{id: "A", label: "New A", type: "t"},{id: "B", label: "B label", type: "n"}], rows: [{c:[{v: "a"},{f: "3ish",v: 3},{v: new Date(2008, 2, 30, 0, 0, 0), f: "4/30/08 12:31 AM"}]}]}';				
+	//System.debug('EXPECTED = ' + assert);
+	//System.debug('ACTUAL   = ' + gv.toJSONString());
 	system.assertEquals( assert , gv.toJSONString() );
     
  }
@@ -314,12 +315,12 @@ rows: [[{v: 'a'}, {v: 1.0, f: '1'}, {v: new Date(2008, 1, 28, 0, 31, 26), f: '2/
     cl.id = 'A';  
     cl.label = 'NEW A';
     cl.ctype = 't';
-    system.debug(cl);
-    system.debug(cl.toJsonString());
+    //system.debug(cl);
+    //system.debug(cl.toJsonString());
     string col_str = '{id: "A", label: "NEW A", type: "t"}';
     system.assert( col_str == cl.toJsonString() );
     
-    system.debug( jsonobject.instance( col_str ) );
+    //system.debug( jsonobject.instance( col_str ) );
  }
   
  
@@ -338,7 +339,7 @@ rows: [[{v: 'a'}, {v: 1.0, f: '1'}, {v: new Date(2008, 1, 28, 0, 31, 26), f: '2/
     s = s.replaceAll(' ','');
     jsonobject j = jsonobject.instance(s);
     string jstring = j.valueToString().replaceAll(' ','');  
-    system.debug(s +'>>'+ jstring);
+    //system.debug(s +'>>'+ jstring);
     // remove white space for the comparison
     system.assert( s == jstring, 'mis match in parsing');
  
