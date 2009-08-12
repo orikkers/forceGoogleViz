@@ -192,13 +192,16 @@ public class SalesController {
         return gv.toJsonString();
 	}  
 	private testMethod static void testSalesActivity(){
-        String expected = '{cols: [{id: "col1", label: "Date", type: "date"},{id: "col2", label: "Cosmo G. Spacely", type: "number"},{id: "col3", label: "Account Name", type: "string"},{id: "col4", label: "Opportunity Amount", type: "string"}], rows: [{c:[{v: new Date(2009, 0, 1, 0, 0, 0), f: "1/1/2009"},{v: 1.0},{v: "a1"},{v: 1000.0}]},{c:[{v: new Date(2009, 1, 2, 0, 0, 0), f: "2/2/2009"},{v: 2.0},{v: "a1"},{v: 2000.0}]}]}';
+		String ownerName = UserInfo.getFirstName() + ' ' + UserInfo.getLastName();
+		
+        String expected = '{cols: [{id: "col1", label: "Date", type: "date"},{id: "col2", label: "' + ownerName + '", type: "number"},{id: "col3", label: "Account Name", type: "string"},{id: "col4", label: "Opportunity Amount", type: "string"}], rows: [{c:[{v: new Date(2009, 0, 1, 0, 0, 0), f: "1/1/2009"},{v: 1.0},{v: "a1"},{v: 1000.0}]},{c:[{v: new Date(2009, 1, 2, 0, 0, 0), f: "2/2/2009"},{v: 2.0},{v: "a1"},{v: 2000.0}]}]}';
         
         SalesController salesCon = new SalesController();
+
         Account a = new Account(name='a1');
         insert a;
-        Opportunity o1 = new Opportunity(Name='o1', StageName='Closed Won', CloseDate=date.newinstance(2009, 1, 1), Amount=1000, AccountId=a.Id); 
-        Opportunity o2 = new Opportunity(Name='o2', StageName='Closed Won', CloseDate=date.newinstance(2009, 2, 2), Amount=2000, AccountId=a.Id); 
+        Opportunity o1 = new Opportunity(Name='o1', StageName='Closed Won', CloseDate=date.newinstance(2009, 1, 1), Amount=1000, AccountId=a.Id, OwnerId=UserInfo.getUserId()); 
+        Opportunity o2 = new Opportunity(Name='o2', StageName='Closed Won', CloseDate=date.newinstance(2009, 2, 2), Amount=2000, AccountId=a.Id, OwnerId=UserInfo.getUserId()); 
         insert new List<Opportunity> {o1, o2};
         String actual = salesCon.getSalesActivity(new List<Id> {o1.Id, o2.Id});
         
