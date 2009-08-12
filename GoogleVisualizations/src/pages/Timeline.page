@@ -13,8 +13,6 @@
                 zoomEndTime="new Date(2008, 09, 30)" 
                 colors="'#C2CD23'" />
                 
-<!-- {!SalesActivity} -->
-                
 </body>
 </html>
 </apex:page>
