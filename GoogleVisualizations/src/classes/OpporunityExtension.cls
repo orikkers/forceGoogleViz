@@ -53,5 +53,26 @@ public class OpporunityExtension {
         gv.addRow( r );
         
         return gv.toJsonString();
-	} 
+	}
+	
+	public static testMethod void testGetAmount() {
+        // Create our test data
+        String expectedJSON = '{cols: [{id: "col1", label: "Label", type: "string"},{id: "col2", label: "Value", type: "number"}], ' + 
+        					  'rows: [{c:[{v: "Amount"},{v: 10000.0}]}]}';  
+        
+        Account a = new Account(name='Test Account');
+        insert a;
+        Opportunity o = new Opportunity(Name='Test Opportunity', Amount=10000, StageName='Prospecting', CloseDate=Date.today(), AccountId=a.Id);
+        insert o;
+        
+        // Instantiate and construct the standard controller and extension classes.   
+        ApexPages.StandardController stdController = new ApexPages.StandardController(o);
+        OpporunityExtension extController = new OpporunityExtension(stdController);
+		
+		// Retrieve the JSON
+		String actualJSON = extController.getAmount();
+        
+      	System.assertEquals(expectedJSON, actualJSON);
+    }
+	 
 }
