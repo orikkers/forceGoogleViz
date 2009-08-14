@@ -1,5 +1,8 @@
 public class AccountHierarchyController {
    
+   /* This controller creates an Account hierarchy three levels deep. It retrieves the
+    * current Account's parent Account, if there is one, and any child Account records. */
+   
    private Account a;
     
    public AccountHierarchyController(ApexPages.StandardController stdController) {
@@ -16,18 +19,18 @@ public class AccountHierarchyController {
 		    new GoogleViz.Col('col3','ToolTip','string')
         };
     	
-    	Account account = [SELECT Id, Name, ParentId  
-        				 		   FROM Account
-        				 		   WHERE Id = :a.Id];
+    	a = [SELECT Id, Name, ParentId  
+        	 FROM Account
+        	 WHERE Id = :a.Id];
 		
 		GoogleViz.row selectedAccountRow = new GoogleViz.row();
-        selectedAccountRow.cells.add ( new GoogleViz.cell( account.Name ) );
+        selectedAccountRow.cells.add ( new GoogleViz.cell( a.Name ) );
 		
 		Integer selectedRowIndex = 0;
 		if(account.ParentId != null){        				 		   
 			Account parentAccount = [SELECT Id, Name  
         					 		 FROM Account
-        					 		 WHERE Id = :account.ParentId];
+        					 		 WHERE Id = :a.ParentId];
         	// Create the single Parent Account row.
         	GoogleViz.row parentAccountRow = new GoogleViz.row();
         	parentAccountRow.cells.add ( new GoogleViz.cell( parentAccount.Name ) );
@@ -59,7 +62,7 @@ public class AccountHierarchyController {
         					 		ORDER BY Name]){
         	GoogleViz.row childAccountRow = new GoogleViz.row();
         	childAccountRow.cells.add ( new GoogleViz.cell( childAccount.Name ) );
-        	childAccountRow.cells.add ( new GoogleViz.cell( account.Name ) );
+        	childAccountRow.cells.add ( new GoogleViz.cell( a.Name ) );
         	childAccountRow.cells.add ( new GoogleViz.cell( 'Child' ) ); 
         	gv.addRow( childAccountRow );  
         }
