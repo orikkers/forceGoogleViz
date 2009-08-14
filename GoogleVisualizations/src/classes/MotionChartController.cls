@@ -78,6 +78,8 @@ public class MotionChartController {
         insert a;
         Opportunity o = new Opportunity(Name='Test Opportunity', Amount=10000, StageName='Prospecting', CloseDate=Date.today(), AccountId=a.Id);
         insert o;
+        
+        // Create a second OpportunityHistory record.
         o.StageName = 'Closed Won';
         update o;
         
@@ -87,10 +89,7 @@ public class MotionChartController {
 		
 		// Retrieve the JSON
 		String actualJSON = extController.getSalesHistory();
-        System.debug('^^EXPECT ' + expectedJSON +'\n\n');
-        System.debug('^^ACTUAL ' + actualJSON +'\n\n');
         
       	System.assert(actualJSON.startsWith(expectedJSON));
     }
-	
 }
