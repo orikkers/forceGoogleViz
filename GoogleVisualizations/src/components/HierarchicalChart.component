@@ -1,4 +1,6 @@
 <apex:component >
+	<!-- This component is uses Google's "Organizational Chart" Visualization: http://code.google.com/apis/visualization/documentation/gallery/orgchart.html -->
+
 	<apex:attribute name="jsondata" description="This is the chart data" type="string" required="true" />
 	<!-- The initialSelection attribute must be an array of JSON objects that contain a row property. They should take this form: '[{row:0}]', and must be eval'd.
 	     More information can be found here: http://code.google.com/apis/visualization/documentation/events.html -->
@@ -8,9 +10,6 @@
     <apex:attribute name="size" type="string" description="small / medium / large" default="medium"/>      
     <apex:attribute name="allowHtml" type="string" description="Render Node Values as HTML" default="false"/>       
     <apex:attribute name="allowCollapse" type="string" description="Determines if double click will collapse a node." default="false"/>  
-    
-    <!-- <apex:attribute name="clickedObject" type="string" description="name that was clicked" />   
-    <apex:inputHidden id="clicked" value="{!clickedObject}" />-->
     
     <apex:outputPanel id="hierarchy_div">
         <script type="text/javascript" src="http://www.google.com/jsapi"></script>
