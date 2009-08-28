@@ -250,21 +250,26 @@ public class GoogleDataSourceControllerTest extends GoogleDataSourceController {
     	
     	System.assertEquals(expectedJSON, actualJSON);
     }
-	
-	/*private testMethod static void testMissingTableName(){
-    	Account a = new Account();
-    	a.Name = 'Test Account';
-    	insert a;
-    	
-    	PageReference pr = Page.GenericDataSource;
-    	pr.getParameters().put('tq', 'SELECT Id, Name WHERE Id=\'' + a.Id + '\''); // Notice the missing 'FROM' clause.
+    
+    private testMethod static void testNoResults(){
+    	String expectedJSON = 
+ 			'google.visualization.Query.setResponse({version:\'0.5\',reqId:\'0\',status:\'error\',' + 
+ 			'errors:[{reason:"other",message:"Your query did not return any rows."}]});';
 
- 		Test.setCurrentPage(pr);
- 		GoogleDataSourceController c = new GoogleDataSourceController();
- 		String response = c.getResponse();
- 		
- 		System.debug('******* = ' + response);
- 		String expected = 'google.visualization.Query.setResponse({version:\'0.5\',reqId:\'0\',status:\'ok\',table:{cols: [{id: "col0", label: "Seven_AM__c", type: "number"}], rows: [{c:[{v: 1.0}]}]}});';
-		System.assertEquals(expected, response);
-    }*/
+    	// Instantiate the page and the controller.
+    	PageReference pageRef = Page.GoogleDataSourceControllerTester;
+    	Test.setCurrentPage(pageRef);
+    	GoogleDataSourceControllerTest controller = new GoogleDataSourceControllerTest();
+    	
+    	// Only retrieve the record that we've created in this testMethod.
+    	String query = 'SELECT Id, Name WHERE Name=\'1234567890ASDFasdfQWERTqwert\'';
+    	pageRef.getParameters().put('tq', query);
+    				 	          
+ 		String actualJSON = controller.getResponse();
+
+    	System.debug('\n\n #### EXCPECTED:' + expectedJSON);
+    	System.debug('\n\n #### ACTUAL:   ' + actualJSON + '\n');
+    	
+    	System.assertEquals(expectedJSON, actualJSON);
+    }
 }

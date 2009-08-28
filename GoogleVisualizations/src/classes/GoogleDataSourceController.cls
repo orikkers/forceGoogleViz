@@ -64,14 +64,22 @@ public virtual class GoogleDataSourceController {
         
         // The 'tqx' parameter is a set of colon-delimited key/value pairs for standard or custom parameters. Pairs are separated by semicolons.    
         String tqxRequest = ApexPages.currentPage().getParameters().get('tqx');
-        String tqxResponse = processTQXParameter(tqxRequest);
+        
+        TQX_Status status = TQX_Status.OK; 
+        String statusMessage = null;
+        
+        if(dataTable == null){
+        	status = TQX_Status.ERROR;
+        	statusMessage = TQX_NO_ROWS_RETURNED_ERROR; 
+        }
+                
+        String tqxResponse = processTQXParameter(tqxRequest, status, statusMessage);
         String response;
         if(tqxResponse.contains(TQX_STATUS_ERROR)){
             response = tqxResponse + RESPONSE_END;
         }
         else{
-            response = tqxResponse
-                       + 'table:' + dataTable + RESPONSE_END;
+        	response = tqxResponse + 'table:' + dataTable + RESPONSE_END;
         }
         System.debug('#### response = ' + response);
         return response;
@@ -150,7 +158,13 @@ public virtual class GoogleDataSourceController {
             gv = getQueryDataTable(query);
         }
         
-        return gv.toJSONString(); 
+        if(gv.rowCollection != null && gv.rowCollection.size() > 0){
+	    	return gv.toJSONString();
+        }
+        else{
+        	return null;
+        }
+       
     }
    
     /* Executes a 'count' query.
@@ -176,18 +190,21 @@ public virtual class GoogleDataSourceController {
         // Execute the query.
         List<sObject> records = Database.query(query);
         
-        // Get the list of fields that the user has queried.
-        List<String> queriedFields = parseFields(query);
-        
-        // Get a list of the 'primitive' types for the fields that were queried. 
-        // Assume that the order of the primitive types is the same as the order of the fields in the query.
-        List<Primitive> primitiveTypes = getOrderedListOfPrimitiveTypes(queriedFields, records[0]);
-        
-        // Create the GoogleViz data structure.
         GoogleViz gv = new GoogleViz();
-        gv.cols = createColumns(queriedFields, primitiveTypes);
-        gv.rowCollection = createRows(queriedFields, records);  
         
+        if(records != null && records.size() > 0){
+	        // Get the list of fields that the user has queried.
+	        List<String> queriedFields = parseFields(query);
+	        
+	        // Get a list of the 'primitive' types for the fields that were queried. 
+	        // Assume that the order of the primitive types is the same as the order of the fields in the query.
+	        List<Primitive> primitiveTypes = getOrderedListOfPrimitiveTypes(queriedFields, records[0]);
+	        
+	        // Populate the GoogleViz data structure.
+	        
+	        gv.cols = createColumns(queriedFields, primitiveTypes);
+	        gv.rowCollection = createRows(queriedFields, records);  
+        }
         return gv;
     }
     
@@ -397,19 +414,19 @@ public virtual class GoogleDataSourceController {
     static final String TQX_SUPPORTED_OUT = 'out:json'; 
     public static final String RESPONSE_END = '});';
     
+    private enum TQX_Status {OK, WARNING, ERROR}
+    
     public static final String TQX_STATUS_OK = 'status:\'ok\'';
     public static final String TQX_STATUS_WARNING = 'status:\'warning\'';
     public static final String TQX_STATUS_ERROR = 'status:\'error\'';
     public static final String TQX_INVALID_OUT_ERROR = 'errors:[{reason:"not_supported",message:"The only supported output format for this server is \'JSON\'."}]';
+    public static final String TQX_NO_ROWS_RETURNED_ERROR = 'errors:[{reason:"other",message:"Your query did not return any rows."}]';
     public static final String TQX_UNSUPPORTED_VERSION_WARNING = 'warnings:[{reason:"other",message:"Only Google Visualization API Version 0.5 is supported by this server."}]'; 
     
-    /* The return value will always have a ',' at the end. */
-    private String processTQXParameter(String tqx){
+    private String processTQXParameter(String tqx, TQX_Status tqxStatus, String statusMessage){
         String reqId = TQX_DEFAULT_REQ_ID;
         String responseHandler = TQX_DEFAULT_RESPONSE_HANDLER;
         String version = TQX_DEFAULT_VERSION_RESPONSE;
-        String status = TQX_STATUS_OK;
-        String statusMessage = '';
         
         List<String> results = new List<String>();
         results.add(TQX_DEFAULT_RESPONSE_HANDLER);
@@ -430,14 +447,14 @@ public virtual class GoogleDataSourceController {
                     else if(params[0].toLowerCase() == TQX_VERSION){
                         //TODO: make in to a warning.
                         if(paramPair != TQX_DEFAULT_VERSION){
-                            status = TQX_STATUS_WARNING;
+                            tqxStatus = TQX_Status.WARNING;
                             statusMessage = TQX_UNSUPPORTED_VERSION_WARNING;
                         }
                     }
                     else if(params[0].toLowerCase() == TQX_OUT){
                         //TODO: make in to an error.
                         if(paramPair.toLowerCase() != TQX_SUPPORTED_OUT){
-                            status = TQX_STATUS_ERROR;
+                            tqxStatus = TQX_Status.ERROR;
                             statusMessage = TQX_INVALID_OUT_ERROR;
                         }
                     }
@@ -447,14 +464,14 @@ public virtual class GoogleDataSourceController {
         
         String result = responseHandler + version + ',' + reqId + ',';
         
-        if(status == TQX_STATUS_OK){ 
-            result += status + ','; 
+        if(tqxStatus == TQX_Status.ERROR){
+        	result += TQX_STATUS_ERROR + ',' + statusMessage;
         }
-        else if(status == TQX_STATUS_WARNING){ 
-            result += status + ',' + statusMessage + ','; 
+        else if(tqxStatus == TQX_Status.WARNING){
+        	result += TQX_STATUS_WARNING + ',' + statusMessage; 
         }
-        else{ 
-            result += status + ',' + statusMessage; 
+        else{
+        	result += TQX_STATUS_OK + ','; 
         }
         
         return result;
