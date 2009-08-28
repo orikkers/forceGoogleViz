@@ -221,7 +221,22 @@ f: Formatted value. String. Optional. The formatted value of this cell. Used by 
     ', '+dtm.hour() +', '+ dtm.minute() +', ' + dtm.second() + ')'; 
     //system.debug( ret ); 
     return ret;
- }  
+ }
+ 
+// helper to return a Google JSON string from a datetime
+ public static string dateToGVizDate(datetime d) { 
+ 	GoogleViz.cell dt = new GoogleViz.cell( (DateTime)d );
+ 	string ret = dt.toJsonString();
+    return ret;
+ } 
+ 
+ // helper to return a Google JSON string from a date
+ public static string dateToGVizDate(date d) { 
+ 	GoogleViz.cell dt = new GoogleViz.cell( (Date)d );
+ 	string ret = dt.toJsonString();
+    return ret;
+ } 
+   
  public string toJSONString() { 
     string ret = '{cols: ['; 
     for( col c: cols) { ret += c.toJsonString() + ',' ; }
