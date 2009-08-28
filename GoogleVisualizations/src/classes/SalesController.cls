@@ -25,40 +25,40 @@
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
     THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-	Illustrates somewhat complex query patterns.
+    Illustrates somewhat complex query patterns.
 */
 
 
 public class SalesController {
-	
-	public String getSalesActivity(){
-		return getSalesActivity(null);
-	}
-	
-	public String getSalesActivity(List<Id> ids){
-		
-    	GoogleViz gv = new GoogleViz();
+    
+    public String getSalesActivity(){
+        return getSalesActivity(null);
+    }
+    
+    public String getSalesActivity(List<Id> ids){
+        
+        GoogleViz gv = new GoogleViz();
                 
         gv.cols = new list<GoogleViz.col> { 
-			new GoogleViz.Col('col1','Date','date'),
-		    new GoogleViz.Col('col2', UserInfo.getFirstName() + ' ' + UserInfo.getLastName(),'number'),
-		    new GoogleViz.Col('col3','Account Name','string'),
-		    new GoogleViz.Col('col4','Opportunity Amount','string')
+            new GoogleViz.Col('col1','Date','date'),
+            new GoogleViz.Col('col2', UserInfo.getFirstName() + ' ' + UserInfo.getLastName(),'number'),
+            new GoogleViz.Col('col3','Account Name','string'),
+            new GoogleViz.Col('col4','Opportunity Amount','string')
         };
                 
         Integer numOpportunities = 1;
         Id userId = UserInfo.getUserId();
         string query = 'SELECT Id, Name, Amount, CloseDate, Account.Name, Owner.Name FROM Opportunity WHERE IsWon = true AND OwnerId = :userId';
-		
-		// The unit testing path.
-		if(ids != null && ids.size() > 0){
-		 	query += ' AND Id IN :ids';
-	 	}
-	 	
-	 	query += ' ORDER BY CloseDate ASC';
-	 	
-    	for(Opportunity o : Database.query(query)){  
-			GoogleViz.row r = new GoogleViz.row();
+        
+        // The unit testing path.
+        if(ids != null && ids.size() > 0){
+            query += ' AND Id IN :ids';
+        }
+        
+        query += ' ORDER BY CloseDate ASC';
+        
+        for(Opportunity o : Database.query(query)){  
+            GoogleViz.row r = new GoogleViz.row();
             r.cells.add ( new GoogleViz.cell( o.CloseDate ) );
             r.cells.add ( new GoogleViz.cell( numOpportunities ) );
             r.cells.add ( new GoogleViz.cell( o.Account.Name ) );
@@ -69,92 +69,92 @@ public class SalesController {
         }
 
         return gv.toJsonString();
-	}  
-	
-	public String getSalesByYear(){
-		return getSalesByYear(null);	
-	}
-	
-	private String getSalesByYear(List<Id> ids){
-		
-    	GoogleViz gv = new GoogleViz();
+    }  
+    
+    public String getSalesByYear(){
+        return getSalesByYear(null);    
+    }
+    
+    private String getSalesByYear(List<Id> ids){
+        
+        GoogleViz gv = new GoogleViz();
                 
         gv.cols = new list<GoogleViz.col> { 
-			new GoogleViz.Col('col1','Year','string'),
-		    new GoogleViz.Col('col2','Amount','number')
+            new GoogleViz.Col('col1','Year','string'),
+            new GoogleViz.Col('col2','Amount','number')
         };
         
         Map<String, Integer> mapAmountsByYear = new Map<String, Integer>();
         
         string query = 'SELECT Amount, FiscalYear FROM Opportunity WHERE IsWon = true';
-		
-		// The unit testing path.
-		if(ids != null && ids.size() > 0){
-		 	query += ' AND Id IN :ids';
-	 	}
-	 	
-	 	query += ' ORDER BY FiscalYear ASC';
+        
+        // The unit testing path.
+        if(ids != null && ids.size() > 0){
+            query += ' AND Id IN :ids';
+        }
+        
+        query += ' ORDER BY FiscalYear ASC';
 
- 		for(Opportunity o : Database.query(query)){         
+        for(Opportunity o : Database.query(query)){         
             String fiscalYear = String.valueOf(o.FiscalYear);
-                              	
-	        if(!mapAmountsByYear.containsKey(fiscalYear)){
-				mapAmountsByYear.put(fiscalYear, o.Amount.intValue());	
-			}else{
-				Integer currentTotalAmount = mapAmountsByYear.get(fiscalYear);	
-				currentTotalAmount += o.Amount.intValue();
-				mapAmountsByYear.put(fiscalYear, currentTotalAmount);
-	        }
+                                
+            if(!mapAmountsByYear.containsKey(fiscalYear)){
+                mapAmountsByYear.put(fiscalYear, o.Amount.intValue());  
+            }else{
+                Integer currentTotalAmount = mapAmountsByYear.get(fiscalYear);  
+                currentTotalAmount += o.Amount.intValue();
+                mapAmountsByYear.put(fiscalYear, currentTotalAmount);
+            }
         }
         
         for(String year : mapAmountsByYear.keySet()){
-			GoogleViz.row r = new GoogleViz.row();
-        	r.cells.add ( new GoogleViz.cell( year ) );
-        	r.cells.add ( new GoogleViz.cell( mapAmountsByYear.get(year) ) );
-        	                
-        	gv.addRow( r );
+            GoogleViz.row r = new GoogleViz.row();
+            r.cells.add ( new GoogleViz.cell( year ) );
+            r.cells.add ( new GoogleViz.cell( mapAmountsByYear.get(year) ) );
+                            
+            gv.addRow( r );
         }
         
         return gv.toJsonString();
-	} 
-	
-	public String getOpportunitiesByBillingCountry(){
-		return getOpportunitiesByBillingCountry(null);
-	}  
-	
-	private String getOpportunitiesByBillingCountry(List<Id> ids){
-    	
-    	GoogleViz gv = new GoogleViz();
+    } 
+    
+    public String getOpportunitiesByBillingCountry(){
+        return getOpportunitiesByBillingCountry(null);
+    }  
+    
+    private String getOpportunitiesByBillingCountry(List<Id> ids){
+        
+        GoogleViz gv = new GoogleViz();
         gv.cols = new list<GoogleViz.col> { 
-			new GoogleViz.Col('col1','Billing Country','string'),
-		    new GoogleViz.Col('col2','Number of Opportunities','number')
+            new GoogleViz.Col('col1','Billing Country','string'),
+            new GoogleViz.Col('col2','Number of Opportunities','number')
         };
                 
         Map<String, Integer> mapOpportunityCounts = new Map<String, Integer>();
 
-		string query = 'SELECT Id, Account.BillingCountry FROM Opportunity';
-		
-		// The unit testing path.
-		if(ids != null && ids.size() > 0){
-		 	query += ' WHERE Id IN :ids';
-	 	}
+        string query = 'SELECT Id, Account.BillingCountry FROM Opportunity';
+        
+        // The unit testing path.
+        if(ids != null && ids.size() > 0){
+            query += ' WHERE Id IN :ids';
+        }
 
- 		for(Opportunity o : Database.query(query)){
-			if(!mapOpportunityCounts.containsKey(o.Account.BillingCountry)){
-				mapOpportunityCounts.put(o.Account.BillingCountry, 0);	
-			}
-			
-			Integer numOpportunities = mapOpportunityCounts.get(o.Account.BillingCountry);	
-			numOpportunities++;
-			
-			mapOpportunityCounts.put(o.Account.BillingCountry, numOpportunities);
-     	}
-		
-		for(String billingCountry : mapOpportunityCounts.keySet()){
-			
-			Integer numOpportunities = mapOpportunityCounts.get(billingCountry);
-			
-			GoogleViz.row r = new GoogleViz.row();
+        for(Opportunity o : Database.query(query)){
+            if(!mapOpportunityCounts.containsKey(o.Account.BillingCountry)){
+                mapOpportunityCounts.put(o.Account.BillingCountry, 0);  
+            }
+            
+            Integer numOpportunities = mapOpportunityCounts.get(o.Account.BillingCountry);  
+            numOpportunities++;
+            
+            mapOpportunityCounts.put(o.Account.BillingCountry, numOpportunities);
+        }
+        
+        for(String billingCountry : mapOpportunityCounts.keySet()){
+            
+            Integer numOpportunities = mapOpportunityCounts.get(billingCountry);
+            
+            GoogleViz.row r = new GoogleViz.row();
             r.cells.add ( new GoogleViz.cell( billingCountry ) );
             r.cells.add ( new GoogleViz.cell( numOpportunities ) );
                 
@@ -162,38 +162,38 @@ public class SalesController {
         }
 
         return gv.toJsonString();
-	}  
-	
-	public String getOpportunitiesAmountProbability(){
+    }  
+    
+    public String getOpportunitiesAmountProbability(){
         return getOpportunitiesAmountProbability(null);
-	}  
-	
-	private String getOpportunitiesAmountProbability(List<Id> ids){
-    	GoogleViz gv = new GoogleViz();
+    }  
+    
+    private String getOpportunitiesAmountProbability(List<Id> ids){
+        GoogleViz gv = new GoogleViz();
         gv.cols = new list<GoogleViz.col> { 
-			new GoogleViz.Col('col1','Probability','number'),
-		    new GoogleViz.Col('col2','Amount','number')
+            new GoogleViz.Col('col1','Probability','number'),
+            new GoogleViz.Col('col2','Amount','number')
         };
         
         string query = 'SELECT Probability, Amount FROM Opportunity';
-		
-		// The unit testing path.
-		if(ids != null && ids.size() > 0){
-		 	query += ' WHERE Id IN :ids ORDER BY CloseDate ASC';
-	 	}
+        
+        // The unit testing path.
+        if(ids != null && ids.size() > 0){
+            query += ' WHERE Id IN :ids ORDER BY CloseDate ASC';
+        }
 
- 		for(Opportunity o : Database.query(query)){
-			GoogleViz.row r = new GoogleViz.row();
-			r.cells.add ( new GoogleViz.cell( o.Probability ) );
-			r.cells.add ( new GoogleViz.cell( o.Amount ) );	                
-	        gv.addRow( r );
-	    }
+        for(Opportunity o : Database.query(query)){
+            GoogleViz.row r = new GoogleViz.row();
+            r.cells.add ( new GoogleViz.cell( o.Probability ) );
+            r.cells.add ( new GoogleViz.cell( o.Amount ) );                 
+            gv.addRow( r );
+        }
         
         return gv.toJsonString();
-	}  
-	private testMethod static void testSalesActivity(){
-		String ownerName = UserInfo.getFirstName() + ' ' + UserInfo.getLastName();
-		
+    }  
+    private testMethod static void testSalesActivity(){
+        String ownerName = UserInfo.getFirstName() + ' ' + UserInfo.getLastName();
+        
         String expected = '{cols: [{id: "col1", label: "Date", type: "date"},{id: "col2", label: "' + ownerName + '", type: "number"},{id: "col3", label: "Account Name", type: "string"},{id: "col4", label: "Opportunity Amount", type: "string"}], rows: [{c:[{v: new Date(2009, 0, 1, 0, 0, 0), f: "1/1/2009"},{v: 1.0},{v: "a1"},{v: 1000.0}]},{c:[{v: new Date(2009, 1, 2, 0, 0, 0), f: "2/2/2009"},{v: 2.0},{v: "a1"},{v: 2000.0}]}]}';
         
         SalesController salesCon = new SalesController();
@@ -208,7 +208,7 @@ public class SalesController {
         System.assertEquals(expected, actual);
     }
     
-	private testMethod static void testSalesByYear(){
+    private testMethod static void testSalesByYear(){
         String expected = '{cols: [{id: "col1", label: "Year", type: "string"},{id: "col2", label: "Amount", type: "number"}], rows: [{c:[{v: "2009"},{v: 3000.0}]}]}';
         
         SalesController salesCon = new SalesController();
@@ -219,8 +219,8 @@ public class SalesController {
         
         System.assertEquals(expected, actual);
     }
-	
-	private testMethod static void testOpportunitiesByBillingCountry(){
+    
+    private testMethod static void testOpportunitiesByBillingCountry(){
         String expected = '{cols: [{id: "col1", label: "Billing Country", type: "string"},{id: "col2", label: "Number of Opportunities", type: "number"}], rows: [{c:[{v: "MyCountry"},{v: 2.0}]}]}';
         
         SalesController salesCon = new SalesController();
@@ -233,8 +233,8 @@ public class SalesController {
 
         System.assertEquals(expected, actual);
     }
-	
-	private testMethod static void testGetOpportunityAmountProbability(){
+    
+    private testMethod static void testGetOpportunityAmountProbability(){
         String expected = '{cols: [{id: "col1", label: "Probability", type: "number"},{id: "col2", label: "Amount", type: "number"}], rows: [{c:[{v: 100.0},{v: 1000.0}]},{c:[{v: 0.0},{v: 2000.0}]}]}';
         
         SalesController salesCon = new SalesController();

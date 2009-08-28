@@ -34,82 +34,82 @@ public class ContactHierarchyController {
    private Contact c;
     
    public ContactHierarchyController(ApexPages.StandardController stdController) {
-   		c = (Contact)stdController.getRecord();
+        c = (Contact)stdController.getRecord();
    }
    
    public String SelectedContact{ get; set; }
    
    public String getReportingHierarchy(){
-    	GoogleViz gv = new GoogleViz();
+        GoogleViz gv = new GoogleViz();
         gv.cols = new list<GoogleViz.col> { 
-			new GoogleViz.Col('col1','Name','string'),
-		    new GoogleViz.Col('col2','Manager','string'),
-		    new GoogleViz.Col('col3','ToolTip','string')
+            new GoogleViz.Col('col1','Name','string'),
+            new GoogleViz.Col('col2','Manager','string'),
+            new GoogleViz.Col('col3','ToolTip','string')
         };
-    	
-    	c = [SELECT Id, FirstName, LastName, ReportsToId  
-       		 FROM Contact
-        	 WHERE Id = :c.Id];
-		
-		GoogleViz.row selectedContactRow = new GoogleViz.row();
+        
+        c = [SELECT Id, FirstName, LastName, ReportsToId  
+             FROM Contact
+             WHERE Id = :c.Id];
+        
+        GoogleViz.row selectedContactRow = new GoogleViz.row();
         selectedContactRow.cells.add ( new GoogleViz.cell( getContactName(c) ) );
-		
-		Integer selectedRowIndex = 0;
-		if(c.ReportsToId != null){        				 		   
-			Contact manager = [SELECT Id, FirstName, LastName  
-        					   FROM Contact
-        					   WHERE Id = :c.ReportsToId];
-        	// Create the single Parent Contact row.
-        	GoogleViz.row managerContactRow = new GoogleViz.row();
-        	managerContactRow.cells.add ( new GoogleViz.cell( getContactName(manager) ) );
-        	managerContactRow.cells.add ( new GoogleViz.cell( '' ) );
-        	managerContactRow.cells.add ( new GoogleViz.cell( 'Manager' ) ); 
-        	gv.addRow( managerContactRow );
-        	selectedRowIndex = 1;
-        	
-        	// Add the Manager Name to the Selected Contact row to form the hierachy
-        	selectedContactRow.cells.add ( new GoogleViz.cell( getContactName(manager) ) );
-		}else{
-			// No Manager to add to the Selected Contact row
-			selectedContactRow.cells.add ( new GoogleViz.cell( '' ) );
-		}
-		// Complete the Selected Contact row
-		selectedContactRow.cells.add ( new GoogleViz.cell( '' ) );  // Not using the ToolTip column
+        
+        Integer selectedRowIndex = 0;
+        if(c.ReportsToId != null){                                 
+            Contact manager = [SELECT Id, FirstName, LastName  
+                               FROM Contact
+                               WHERE Id = :c.ReportsToId];
+            // Create the single Parent Contact row.
+            GoogleViz.row managerContactRow = new GoogleViz.row();
+            managerContactRow.cells.add ( new GoogleViz.cell( getContactName(manager) ) );
+            managerContactRow.cells.add ( new GoogleViz.cell( '' ) );
+            managerContactRow.cells.add ( new GoogleViz.cell( 'Manager' ) ); 
+            gv.addRow( managerContactRow );
+            selectedRowIndex = 1;
+            
+            // Add the Manager Name to the Selected Contact row to form the hierachy
+            selectedContactRow.cells.add ( new GoogleViz.cell( getContactName(manager) ) );
+        }else{
+            // No Manager to add to the Selected Contact row
+            selectedContactRow.cells.add ( new GoogleViz.cell( '' ) );
+        }
+        // Complete the Selected Contact row
+        selectedContactRow.cells.add ( new GoogleViz.cell( '' ) );  // Not using the ToolTip column
         gv.addRow( selectedContactRow );
-       	
-       	// The initialSelection attribute must be an array of JSON objects that contain a row property. 
-       	// They should take this form: '[{row:0}]', and must be eval'd.
-	    // More information can be found here: http://code.google.com/apis/visualization/documentation/events.html
-       	SelectedContact = '[{row:' + selectedRowIndex + '}]' ;
+        
+        // The initialSelection attribute must be an array of JSON objects that contain a row property. 
+        // They should take this form: '[{row:0}]', and must be eval'd.
+        // More information can be found here: http://code.google.com/apis/visualization/documentation/events.html
+        SelectedContact = '[{row:' + selectedRowIndex + '}]' ;
        
-       	// Add 1 level of direct reports.
+        // Add 1 level of direct reports.
         for(Contact employee : [SELECT Id, FirstName, LastName 
-        					    FROM Contact 
-        					    WHERE ReportsToId = :c.Id
-        					 	ORDER BY LastName]){
-        	GoogleViz.row employeeRow = new GoogleViz.row();
-        	employeeRow.cells.add ( new GoogleViz.cell( getContactName(employee) ) );
-        	employeeRow.cells.add ( new GoogleViz.cell( getContactName(c) ) );
-        	employeeRow.cells.add ( new GoogleViz.cell( 'Employee' ) ); 
-        	gv.addRow( employeeRow );  
+                                FROM Contact 
+                                WHERE ReportsToId = :c.Id
+                                ORDER BY LastName]){
+            GoogleViz.row employeeRow = new GoogleViz.row();
+            employeeRow.cells.add ( new GoogleViz.cell( getContactName(employee) ) );
+            employeeRow.cells.add ( new GoogleViz.cell( getContactName(c) ) );
+            employeeRow.cells.add ( new GoogleViz.cell( 'Employee' ) ); 
+            gv.addRow( employeeRow );  
         }
         
         return gv.toJsonString();
-	}
-	
-	private String getContactName(Contact con){
-		return con.FirstName + ' ' + con.LastName;
-	}
+    }
+    
+    private String getContactName(Contact con){
+        return con.FirstName + ' ' + con.LastName;
+    }
    
-   	public static testMethod void testGetReportingHierarchy() {
+    public static testMethod void testGetReportingHierarchy() {
         // Create our test data
         String expectedJSON = '{cols: [{id: "col1", label: "Name", type: "string"},' + 
-        					  		  '{id: "col2", label: "Manager", type: "string"},' + 
-        					  		  '{id: "col3", label: "ToolTip", type: "string"}], ' + 
-        					   'rows: [{c:[{v: "Head Manager"},{v: ""},{v: "Manager"}]},' + 
-        					   		  '{c:[{v: "Middle Manager"},{v: "Head Manager"},{v: ""}]},' + 
-        					   		  '{c:[{v: "Sally Employee1"},{v: "Middle Manager"},{v: "Employee"}]},' + 
-        					   		  '{c:[{v: "Jon Employee2"},{v: "Middle Manager"},{v: "Employee"}]}]}';
+                                      '{id: "col2", label: "Manager", type: "string"},' + 
+                                      '{id: "col3", label: "ToolTip", type: "string"}], ' + 
+                               'rows: [{c:[{v: "Head Manager"},{v: ""},{v: "Manager"}]},' + 
+                                      '{c:[{v: "Middle Manager"},{v: "Head Manager"},{v: ""}]},' + 
+                                      '{c:[{v: "Sally Employee1"},{v: "Middle Manager"},{v: "Employee"}]},' + 
+                                      '{c:[{v: "Jon Employee2"},{v: "Middle Manager"},{v: "Employee"}]}]}';
         
         Contact manager = new Contact(FirstName='Head', LastName='Manager');
         insert manager;
@@ -120,16 +120,16 @@ public class ContactHierarchyController {
         Contact employee1 = new Contact(FirstName='Sally', LastName='Employee1', ReportsToId=selected.Id);
         insert employee1;
 
-		Contact employee2 = new Contact(FirstName='Jon', LastName='Employee2', ReportsToId=selected.Id);
+        Contact employee2 = new Contact(FirstName='Jon', LastName='Employee2', ReportsToId=selected.Id);
         insert employee2;
                 
         // Instantiate and construct the standard controller and extension classes.   
         ApexPages.StandardController stdController = new ApexPages.StandardController(selected);
         ContactHierarchyController extController = new ContactHierarchyController(stdController);
 
-		// Retrieve the JSON
-		String actualJSON = extController.getReportingHierarchy();
+        // Retrieve the JSON
+        String actualJSON = extController.getReportingHierarchy();
         
-      	System.assertEquals(expectedJSON, actualJSON);
+        System.assertEquals(expectedJSON, actualJSON);
     }
 }
