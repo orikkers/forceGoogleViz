@@ -19,7 +19,7 @@
 
 	<!-- Visualize the Data Source's data. -->
     <script type="text/javascript"> 
-		// Specify the GViz Data Source endpoint    
+		// Specify the GViz Data Source endpoint:    
         var query = new google.visualization.Query(
         'http://gvizdatasource-developer-edition.na7.force.com/demo/CallVolume'); // You'll need to replace this url with your own data source url.
               
@@ -30,7 +30,7 @@
         // An alternative query with a WHERE clause:
         // query.setQuery('SELECT Hour__c, Number_of_Calls__c WHERE Date__c = TODAY ORDER BY Hour__c');
 	  
-		// Execute the query with a callback function.
+		// Execute the query with a callback function:
         query.send(drawColumnChart);
 	
         function drawColumnChart(response) {
