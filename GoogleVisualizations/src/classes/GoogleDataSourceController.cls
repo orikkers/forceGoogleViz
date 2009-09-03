@@ -351,56 +351,6 @@ public virtual class GoogleDataSourceController {
         return rows;
     }
     
-    /*private List<GoogleViz.row> createRows(List<String> queriedFields, List<Primitive> primitiveTypes, List<sObject> records){    
-        List<GoogleViz.row> rows = new List<GoogleViz.row>();
-        
-        for(sObject record : records){
-            GoogleViz.row r = new GoogleViz.row();            
-
-            for(Integer i = 0; i< queriedFields.size(); i++){                   
-                Primitive fieldType = primitiveTypes[i];
-                
-                if (fieldType == Primitive.TYPE_BOOLEAN){
-                    r.cells.add ( new GoogleViz.cell( (Boolean)record.get(queriedFields[i]) ) ); 
-                }
-                else if (fieldType == Primitive.TYPE_DATE){
-                    r.cells.add ( new GoogleViz.cell( (Date)record.get(queriedFields[i]) ) );
-                }
-                else if (fieldType == Primitive.TYPE_DATETIME){
-                    System.debug('\n\n@@@@@ fieldType: ' + fieldType + '\n');
-                    System.debug('\n\n@@@@@ queriedFields[i]: ' + queriedFields[i] + '\n');
-                    System.debug('\n\n@@@@@ record.get(queriedFields[i]): ' + record.get(queriedFields[i]) + '\n');
-                    System.debug('\n\n@@@@@ (record.get(queriedFields[i]) instanceof DateTime): ' + (record.get(queriedFields[i]) instanceof DateTime) + '\n');
-                    System.debug('\n\n@@@@@ (record.get(queriedFields[i]) instanceof Date): ' + (record.get(queriedFields[i]) instanceof Date) + '\n');
-                    
-                    r.cells.add ( new GoogleViz.cell( (DateTime)record.get(queriedFields[i]) ) );
-                    
-                    // Not sure why, but fields that are Schema.Displaytype.DATETIME
-                    // don't like to be cast to DateTime, so we cast them to Date instead.
-                    //r.cells.add ( new GoogleViz.cell( (Date)record.get(queriedFields[i]) ) );
-                }
-                else if(fieldType == Primitive.TYPE_DOUBLE){
-                    r.cells.add ( new GoogleViz.cell( (Double)record.get(queriedFields[i]) ) );
-                }
-                else if(fieldType == Primitive.TYPE_INTEGER){
-                    r.cells.add ( new GoogleViz.cell( (Integer)record.get(queriedFields[i]) ) );
-                }
-                else if (fieldType == Primitive.TYPE_STRING){
-                    r.cells.add ( new GoogleViz.cell( (String)record.get(queriedFields[i]) ) );
-                }
-                //else if (fieldType == Primitive.TYPE_TIMEOFDAY){
-                //  r.cells.add ( new GoogleViz.cell( (Time)record.get(queriedFields[i]) ) );
-                //}
-                else{
-                    throw new RowTypeNotMappedException();
-                }
-            }
-            
-            rows.add(r);
-        }
-        return rows;
-    }*/
-    
     public static final String TQX_REQID = 'reqid';
     static final String TQX_RESPONSE_HANDLER = 'responsehandler';
     static final String TQX_VERSION = 'version';
@@ -497,41 +447,4 @@ public virtual class GoogleDataSourceController {
     private class RowTypeNotMappedException extends Exception{}
     //private class UnsupportedGVizApiVersionRequested extends Exception{}
     //private class UnsupportedOutFormatRequested extends Exception{}
-    
-    /*private String getQueryResults(){
-        System.debug('QueryResults');
-        String query = ApexPages.currentPage().getParameters().get('tq');
-        if(query != null){
-            System.debug('\n\nquery = ' + query);
-            List<sObject> records = Database.query(query);
-            
-            return toString(records);
-        }
-        return null;
-    }
-    
-    private String getAvailableFields(Schema.Sobjecttype objType){
-        Schema.Describesobjectresult objDescribeResult = objType.getDescribe();
-        
-        Map<String, Schema.SObjectField> fieldMap = objDescribeResult.fields.getMap();
-        
-        String fields = '';
-        
-        Integer i = 1;
-        for(String field : fieldMap.keySet()){
-            Schema.SObjectField fieldToken = (fieldMap.get(field));
-            Schema.DescribeFieldResult fieldDescribeResult = fieldToken.getDescribe();
-            
-            Schema.Displaytype displayType = fieldDescribeResult.getType();
-            String fieldType = displayType.name();
-            
-            fields += i++ + ') ' + field + ':' + fieldType + ',         '; 
-        }
-        
-        return fields;
-    }
-    
-    private String getAvailableFields(){
-        return getAvailableFields(ObjectType);
-    }*/
 }
