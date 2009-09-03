@@ -21,13 +21,14 @@
     <script type="text/javascript"> 
 		// Specify the GViz Data Source endpoint    
         var query = new google.visualization.Query(
-        'http://gviz-developer-edition.na6.force.com/demo/CallVolume'); // You'll need to replace this url with your own data source url.
+        'http://gvizdatasource-developer-edition.na7.force.com/demo/ContactUs'); // You'll need to replace this url with your own data source url.
               
-        // Specify the query that we want to run.      
-        //query.setQuery('SELECT Hour__c, Number_of_Calls__c ORDER BY Hour__c');
-        //query.setQuery('SELECT Hour__c, Number_of_Calls__c FROM Call_Volume__c WHERE Date__c = TODAY ORDER BY Hour__c');
-		// Notice that you can only query for records in the Custom Object that is exposed by your endpoint.
-        query.setQuery('SELECT Hour__c, Number_of_Calls__c WHERE Date__c = TODAY ORDER BY Hour__c');
+        // Specify the query that we want to run:      
+        // Notice that you can only query for records in the Custom Object that is exposed by your endpoint.
+           query.setQuery('SELECT Hour__c, Number_of_Calls__c ORDER BY Hour__c');
+        
+        // An alternative query with a WHERE clause:
+        // query.setQuery('SELECT Hour__c, Number_of_Calls__c WHERE Date__c = TODAY ORDER BY Hour__c');
 	  
 		// Execute the query with a callback function.
         query.send(drawLineChart);
