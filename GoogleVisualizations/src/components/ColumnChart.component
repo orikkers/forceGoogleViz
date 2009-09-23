@@ -8,7 +8,6 @@
 	<apex:attribute name="borderColor" description="This is the color of the border around chart elements." type="string" default="white" />
 	<apex:attribute name="focusBorderColor" description="This is the color of the border around chart elements that are in focus." type="string" default="gray" />
 	<apex:attribute name="is3D" description="This deteremines whether or not the chart is 3D."	type="boolean" default="false"/>
-	<apex:attribute name="openWorkday" description="If set to true, clicking on one of the columns in this chart will open the Workday login page." type="boolean" default="false"/>
 	<!-- sample selectListenerBody attribute: selectListenerBody="window.location.href = '/apex/DrilldownPage';"  -->
 	<apex:attribute name="selectListenerBody" description="The JavaScript function definition that will be executed when a Select event occurs. (Do not use the double-quote character in the body.)" type="string" default=""/>
 	
